@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
-const PORT = process.env.PORT
 require('dotenv').config();
+const PORT = process.env.PORT
 const cors = require('cors');
 const mongoose = require('mongoose')
 

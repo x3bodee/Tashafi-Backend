@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express')
 const app = express()
 require('dotenv').config();
@@ -21,7 +22,7 @@ app.use(express.json());
 // app.use(require('./routes/booking.route'))
 // app.use(require('./routes/review.route'))
 // app.use(require('./routes/session.route'))
-// app.use(require('./routes/specialty.route'))
+app.use('/api/v1/specialty',require('./routes/specialty.route'))
 
 
 app.get('/' , (req,res)=>{

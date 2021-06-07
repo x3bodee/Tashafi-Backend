@@ -7,7 +7,7 @@ const reviewSchema = mongoose.Schema({
         required: true
     },
     review_number: {
-        type: Integer,
+        type: Number,
         required: true
     },
     patient: {

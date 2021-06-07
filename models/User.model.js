@@ -25,7 +25,7 @@ const userSchema = mongoose.Schema({
         required: true
     },
     userType: {
-        type: Integer,
+        type: String,
         required: true
     },
     location: {
@@ -35,6 +35,10 @@ const userSchema = mongoose.Schema({
     city: {
         type: String,
         required: true
+    },
+    specialty:{
+        type : mongoose.Schema.Types.ObjectId , 
+        ref : 'Specialty'
     },
     booking : [{
         type : mongoose.Schema.Types.ObjectId , 

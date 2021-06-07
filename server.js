@@ -19,9 +19,9 @@ app.use(express.json());
 
 // routes 
 // app.use(require('./routes/auth.route'))
-// app.use(require('./routes/booking.route'))
 // app.use(require('./routes/review.route'))
-// app.use(require('./routes/session.route'))
+app.use('/api/v1/session',require('./routes/session.route'))
+// app.use('/api/v1/booking',require('./routes/booking.route'))
 app.use('/api/v1/specialty',require('./routes/specialty.route'))
 
 

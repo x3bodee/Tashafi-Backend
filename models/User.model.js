@@ -25,7 +25,7 @@ const userSchema = mongoose.Schema({
         required: true
     },
     userType: {
-        type: Integer,
+        type: Number,
         required: true
     },
     location: {

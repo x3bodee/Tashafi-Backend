@@ -19,9 +19,9 @@ app.use(express.json());
 // routes 
 // app.use(require('./routes/auth.route'))
 // app.use(require('./routes/booking.route'))
-app.use('/api/v1/review', require('./routes/review.route'))
-// app.use(require('./routes/session.route'))
-app.use('/api/v1/specialty', require('./routes/specialty.route'))
+app.use('/api/v1/review' ,require('./routes/review.route'))
+// app.use('/api/v1/auth',require('./routes/auth.route'))
+app.use('/api/v1/specialty' ,require('./routes/specialty.route'))
 
 
 app.get('/', (req, res) => {

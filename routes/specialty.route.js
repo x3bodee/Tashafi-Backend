@@ -53,7 +53,7 @@ router.get('/:id', async (req, res) => {
         if (!specialty) {
             throw new Error("specialty does not exsist.")
         }
-        res.status(200).json(specialty)
+        res.status(201).json(specialty)
 
     }
     catch (err) {

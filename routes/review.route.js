@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose')
+
 
 // Import the models
 const Review = require('../models/Review.model');
@@ -9,14 +11,16 @@ const User = require('../models/User.model');
 router.post('/new', async (req, res) => {
     try {
         const newReview = new Review(req.body)
-        const doctorID = User.findById(req.doctor._id)
-        const patientID = User.findById(req.patient._id)
-        newReview.doctor = doctorID
-        newReview.patient = patientID
+        const doctorID = await User.findOne(req.doctor)
+        const patientID = await User.findOne(req.patient)
+        
         await newReview.save()
         res.status(201).json({
             Review: newReview,
             message: 'new review has been added',
+            name :doctorID,
+            nameP :patientID
+
         })
     }
     catch (err) {
@@ -44,4 +48,55 @@ router.get('/reviews', async (req, res) => {
         })
     }
 })
+
+
+// all review by patientID
+
+router.get('review/patient/:id' async (req,res)=>{
+    try{
+        
+    }
+    catch (err) {
+        res.status(400).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
+
+
+
+// all review by doctorID
+
+router.get('review/DOCTOR/:id' async (req,res)=>{
+    try{
+
+    }
+    catch (err) {
+        res.status(400).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
+
+// update review
+
+
+
+// delete review
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = router;

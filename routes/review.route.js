@@ -13,13 +13,13 @@ router.post('/new', async (req, res) => {
         const newReview = new Review(req.body)
         const doctorID = await User.findOne(req.doctor)
         const patientID = await User.findOne(req.patient)
-        
+
         await newReview.save()
         res.status(201).json({
             Review: newReview,
             message: 'new review has been added',
-            name :doctorID,
-            nameP :patientID
+            name: doctorID,
+            nameP: patientID
 
         })
     }
@@ -52,42 +52,60 @@ router.get('/reviews', async (req, res) => {
 
 // all review by patientID
 
-router.get('review/patient/:id' async (req,res)=>{
-    try{
-        
-    }
-    catch (err) {
-        res.status(400).json({
-            name: err.name,
-            message: err.message,
-            url: req.originalUrl
-        })
-    }
-})
+// router.get('review/patient/:id' async (req, res) => {
+//     try {
+
+//     }
+//     catch (err) {
+//         res.status(400).json({
+//             name: err.name,
+//             message: err.message,
+//             url: req.originalUrl
+//         })
+//     }
+// })
 
 
 
 // all review by doctorID
 
-router.get('review/DOCTOR/:id' async (req,res)=>{
-    try{
+// router.get('review/doctor/:id' async (req, res) => {
+//     try {
 
-    }
-    catch (err) {
-        res.status(400).json({
-            name: err.name,
-            message: err.message,
-            url: req.originalUrl
-        })
-    }
-})
+//     }
+//     catch (err) {
+//         res.status(400).json({
+//             name: err.name,
+//             message: err.message,
+//             url: req.originalUrl
+//         })
+//     }
+// })
 
 // update review
 
 
 
 // delete review
-
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const reviewID = req.params.id
+        const review = await Review.findByIdAndDelete(reviewID)
+        if (!review) {
+            throw new Error("review does not exist")
+        }
+        res.status(200).json({
+            message: "this Review has been deleted Successfully"
+        })
+    }
+    catch (err) {
+        res.status(400).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
 
 
 

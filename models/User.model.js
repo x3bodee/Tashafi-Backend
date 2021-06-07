@@ -36,6 +36,10 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    specialty:{
+        type : mongoose.Schema.Types.ObjectId , 
+        ref : 'Specialty'
+    },
     booking : [{
         type : mongoose.Schema.Types.ObjectId , 
         ref : 'Booking'

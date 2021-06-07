@@ -1,8 +1,9 @@
 require('dotenv').config();
 const express = require('express')
 const app = express()
-// process.env.PORT
-const PORT = 4000;
+require('dotenv').config();
+const PORT = process.env.PORT
+
 const cors = require('cors');
 const mongoose = require('mongoose')
 
@@ -18,9 +19,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json());
 
 // routes 
-// app.use(require('./routes/auth.route'))
-// app.use(require('./routes/booking.route'))
 
+// app.use('/api/v1/booking',require('./routes/booking.route'))
+app.use('/api/v1/session',require('./routes/session.route'))
 app.use('/api/v1/review' ,require('./routes/review.route'))
 app.use('/api/v1/specialty' ,require('./routes/specialty.route'))
 app.use('/api/v1/auth',require('./routes/auth.route'))

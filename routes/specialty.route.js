@@ -8,7 +8,9 @@ const Specialty = require('../models/Specialty.model')
 // add a new specialty 
 
 router.post('/new', async (req, res) => {
+    
     try {
+        
         const newSpecialty = new Specialty(req.body)
         await newSpecialty.save()
         res.json({

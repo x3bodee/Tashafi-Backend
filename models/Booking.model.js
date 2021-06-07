@@ -20,11 +20,6 @@ const bookingSchema = mongoose.Schema({
         ref : 'User',
         required: true
     },
-    doctor: {
-        type : mongoose.Schema.Types.ObjectId , 
-        ref : 'User',
-        required: true
-    },
     meeting_id: {
         type : mongoose.Schema.Types.ObjectId , 
         ref : 'Session',

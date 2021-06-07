@@ -25,7 +25,7 @@ const userSchema = mongoose.Schema({
         required: true
     },
     userType: {
-        type: Integer,
+        type: Number,
         required: true
     },
     location: {
@@ -46,13 +46,13 @@ const userSchema = mongoose.Schema({
     }]
 } , {timestamp : true})
 
-// userSchema.pre("save" , function (next , done) {
-//     console.log("pre save user")
-//     let salt = bcrypt.genSaltSync()
-//     let hash = bcrypt.hashSync(this.password , salt)
-//     this.password = hash
-//     next()
-// })
+userSchema.pre("save" , function (next , done) {
+    console.log("pre save user")
+    let salt = bcrypt.genSaltSync()
+    let hash = bcrypt.hashSync(this.password , salt)
+    this.password = hash
+    next()
+})
 
 
 const User = mongoose.model('User', userSchema);

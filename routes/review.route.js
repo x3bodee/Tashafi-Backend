@@ -84,7 +84,29 @@ router.get('/reviews', async (req, res) => {
 
 // update review
 
+router.put('/edit/:id', async (req, res) => {
+    try {
 
+        const reviewID = req.params.id
+        const review = await Review.findByIdAndUpdate(reviewID, req.body)
+        if (!review) {
+            throw new Error("review does not exist")
+
+        }
+        await review.save()
+        res.status(200).json({
+            Review: review,
+            message: 'review has been updated',
+        })
+    }
+    catch (err) {
+        res.status(400).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
 
 // delete review
 router.delete('/delete/:id', async (req, res) => {

@@ -73,15 +73,15 @@ router.get('/:id', async (req, res) => {
 
 
 
-router.get('/delete/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const specialtyID = req.params.id
         const specialty = await Specialty.findByIdAndDelete(specialtyID)
         
         if (!specialty) throw "DontExist"
         
-        const doctor = await User.updateMany({specialty:specialtyID},{specialty:null},{multi: true})
-        
+        const doctor = await User.updateMany({specialty:specialtyID},{specialty:null},{ multi: true})
+
         console.log("done update")
         console.log(doctor)
 
@@ -103,7 +103,6 @@ router.get('/delete/:id', async (req, res) => {
             })
     }
 })
-
 
 
 

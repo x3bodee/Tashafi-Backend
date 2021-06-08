@@ -73,25 +73,6 @@ router.get('/patient/:id', async (req, res) => {
     }
 })
 
-router.get('/doctor/:id', async (req, res) => {
-    try {
-        const review = await Review.find({ doctor: req.params.id }).populate({ path: "patient", select: "Fname Lname" })
-        if (!review) {
-            throw new Error("this doctor does not have any reviews yet")
-        }
-
-        console.log(review)
-        res.status(200).json(review)
-    } catch (error) {
-        res.status(400).json({
-            name: error.name,
-            message: error.message,
-            url: req.originalUrl
-        })
-    }
-})
-
-
 
 // all review by doctorID
 

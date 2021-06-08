@@ -192,6 +192,11 @@ router.delete('/:id', async ( req, res ) => {
         console.log(deleted)
         if(!deleted) throw "Not Found"
         
+        const session = await Session.findByIdAndUpdate({_id:deleted.meeting_id},{status:false})
+        console.log(session)
+        
+        if (!session) throw "Not Found"
+
         res.status(200).json({
             message: 'booking has been deleted',
         })
@@ -212,7 +217,7 @@ router.delete('/:id', async ( req, res ) => {
         else if( err = "Not Found") 
             res.status(404).json({
                 name: "Not Found",
-                message: "there is no booking with this ID",
+                message: "there is no booking or session with this ID",
                 url: req.originalUrl
         })
         else

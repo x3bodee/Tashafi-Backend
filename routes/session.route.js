@@ -8,9 +8,10 @@ const User = require('../models/User.model')
 router.post('/new' , async(req, res) => {
     console.log("test")
     try {
-        console.log(req.body.doctor)
-        console.log(req.body.start_time)
-        console.log(req.body.end_time)
+        // console.log(req.body.doctor)
+        // console.log(req.body.start_time)
+        // console.log(req.body.end_time)
+        
         if(!req.body.doctor || !req.body.start_time || !req.body.end_time) throw "missing"
         
         const doctor = await User.findById(req.body.doctor).select({"password": 0})
@@ -55,11 +56,6 @@ router.post('/new' , async(req, res) => {
             })
         }
     }
-    
-
-    
-
-
 })
 
 router.post('/edit/:id' , async(req, res) => {
@@ -79,6 +75,46 @@ router.post('/edit/:id' , async(req, res) => {
             url: req.originalUrl
         })
     }
+})
+
+router.get('/show/:id' , async(req, res) => {
+    try{
+
+        const id = req.params.id;
+
+        const sessions = await Session.find({doctor: id},{"_v":0})
+            .populate({
+                path: "doctor",
+                select: '-password',
+                populate : {
+                    path : 'specialty',
+                    select: 'name'
+                }
+            })
+            
+        if (!sessions || !sessions.length) throw "DontExist"
+        
+        console.log(sessions)
+
+        res.status(200).json({
+            message: 'sessions has been found',
+            sessions:sessions,
+        })
+    }catch(err){
+        if (err == "DontExist") 
+            res.status(404).json({
+                name: "DontExist",
+                message: "there is no session for this doctor",
+                url: req.originalUrl
+            })
+        else 
+        res.status(404).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+
 })
 
 module.exports = router;

@@ -72,6 +72,48 @@ router.post('/new' , async(req, res) => {
 })
 
 
+// update booking
+
+router.put('/edit/:id', async (req, res) => {
+    try {
+
+        const bookingID = req.params.id
+        const updatedBooking = await Booking.findByIdAndUpdate(bookingID, req.body)
+        if (!updatedBooking) {
+            throw new Error("booking does not exist")
+
+        }
+        await updatedBooking.save()
+        res.status(200).json({
+            Booking: updatedBooking,
+            message: 'booking has been updated',
+        })
+    }
+    catch (err) {
+        res.status(400).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
+
+//ALL booking 
+
+router.get('/bookings', async (req, res) => {
+    try {
+        const allbooking = await Booking.find().populate('patient')
+        res.status(200).json({ allReviews })
+    }
+    catch (err) {
+        res.status(401).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
+///Single Booking
 router.post('/finddoctors/' , async(req, res) => {
     try{
 

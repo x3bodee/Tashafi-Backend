@@ -69,18 +69,28 @@ router.get('/reviews', async (req, res) => {
 
 // all review by doctorID
 
-// router.get('review/doctor/:id' async (req, res) => {
-//     try {
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// this worked for doctor and patient for now i will try to fix it to make it show just the doctor reviews ////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//     }
-//     catch (err) {
-//         res.status(400).json({
-//             name: err.name,
-//             message: err.message,
-//             url: req.originalUrl
-//         })
-//     }
-// })
+
+router.get('/doctor/:id', async (req, res) => {
+    try {
+        const doctorID = await User.findOne(req.doctor)
+        const review = await Review.findById(doctorID)
+        if (!review) {
+            throw new Error("this doctor does not have any reviews yet")
+        }
+        res.status(200).json(review)
+    } catch (error) {
+        res.status(400).json({
+            name: error.name,
+            message: error.message,
+            url: req.originalUrl
+        })
+    }
+})
+
 
 // update review
 

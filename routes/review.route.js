@@ -52,6 +52,8 @@ router.get('/reviews', async (req, res) => {
 
 // all review by patientID
 
+// all data by patient id then papoulate dr and show the FNAME LNAME 
+
 // router.get('review/patient/:id' async (req, res) => {
 //     try {
 
@@ -65,22 +67,37 @@ router.get('/reviews', async (req, res) => {
 //     }
 // })
 
+router.get('/doctor/:id', async (req, res) => {
+    try {
+        const review = await Review.find({doctor:req.params.id}).populate({path:"patient",select:"Fname Lname"})
+        
+        if (!review) {
+            throw new Error("this doctor does not have any reviews yet")
+        }
+        console.log(review)
+        res.status(200).json(review)
+    } catch (error) {
+        res.status(400).json({
+            name: error.name,
+            message: error.message,
+            url: req.originalUrl
+        })
+    }
+})
+
 
 
 // all review by doctorID
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// this worked for doctor and patient for now i will try to fix it to make it show just the doctor reviews ////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 router.get('/doctor/:id', async (req, res) => {
     try {
-        const doctorID = await User.findOne(req.doctor)
-        const review = await Review.findById(doctorID)
+        const review = await Review.find({doctor:req.params.id}).populate({path:"patient",select:"Fname Lname"})
+        
         if (!review) {
             throw new Error("this doctor does not have any reviews yet")
         }
+        console.log(review)
         res.status(200).json(review)
     } catch (error) {
         res.status(400).json({

@@ -3,6 +3,7 @@ const router = express.Router();
 
 // Import the model
 const Specialty = require('../models/Specialty.model')
+const User = require('../models/User.model')
 
 
 // add a new specialty 
@@ -72,7 +73,36 @@ router.get('/:id', async (req, res) => {
 
 
 
+router.get('/delete/:id', async (req, res) => {
+    try {
+        const specialtyID = req.params.id
+        const specialty = await Specialty.findByIdAndDelete(specialtyID)
+        
+        if (!specialty) throw "DontExist"
+        
+        const doctor = await User.updateMany({specialty:specialtyID},{specialty:null},{multi: true})
+        
+        console.log("done update")
+        console.log(doctor)
 
+        res.status(200).json({
+            message: 'specialty has been deleted',
+        })
+    }catch (err) {
+        if(err == "DontExist") 
+            res.status(404).json({
+                name: "DontExist",
+                message: "there is no specialty with this ID",
+                url: req.originalUrl
+            })
+        else 
+            res.status(404).json({
+                name: err.name,
+                message: err.message,
+                url: req.originalUrl
+            })
+    }
+})
 
 
 

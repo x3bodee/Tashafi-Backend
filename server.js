@@ -20,7 +20,7 @@ app.use(express.json());
 
 // routes 
 
-// app.use('/api/v1/booking',require('./routes/booking.route'))
+app.use('/api/v1/booking',require('./routes/booking.route'))
 app.use('/api/v1/session',require('./routes/session.route'))
 app.use('/api/v1/review' ,require('./routes/review.route'))
 app.use('/api/v1/specialty' ,require('./routes/specialty.route'))

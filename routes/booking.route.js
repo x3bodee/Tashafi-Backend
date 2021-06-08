@@ -4,9 +4,70 @@ const router = express.Router();
 // Import the model
 const Booking = require('../models/Booking.model')
 const User = require('../models/User.model')
+const Session = require('../models/Session.model')
 
-
+// adding new booking
 router.post('/new' , async(req, res) => {
+    try {
+        const sID= req.body.meeting_id
+        const sDescritption= req.body.description
+        const sPatient= req.body.patient
+        console.log(sID)
+        console.log(sDescritption)
+        console.log(sPatient)
+        if(!sID || !sDescritption || !sPatient) throw "missing data"
+
+        const book = new Booking({description:sDescritption ,patient:sPatient , meeting_id:sID})
+        const booking=  await book.save()
+          if(!booking ) throw "booking not saved" 
+
+        const sessionID = await Session.findByIdAndUpdate({_id:sID} , {status:true}).populate({ 
+           path:'doctor' , select : '-password'
+       })
+        console.log(sessionID)
+       if(!sessionID) throw "not found"
+        //  sessionID.status=true
+        //  await sessionID.save()
+         console.log("Hi")
+      
+      const doctor = await User.findByIdAndUpdate(sessionID.doctor._id , {$push:{booked:booking}})
+
+       if(!doctor) throw "not found"
+       const patientID = await User.findByIdAndUpdate({_id:sPatient},{$push:{booking:booking}})
+       console.log("line 29")
+       if(!patientID) throw "not found"
+    //    console.log(patientID)
+        res.json({
+            booking: booking,
+            message: 'new booking successfully created',
+        })
+    }
+    catch (err) {
+        if (err=="missing data")
+        res.status(406).json({
+            name: "missing data",
+            message: "there is missing data ",
+            url: req.originalUrl
+        })
+        else if ( err=="booking not saved")
+            res.status(400).json({
+                name: "not saved",
+                message: "Something went wrong while saving",
+                url: req.originalUrl
+        })
+        else if ( err=="not found")
+        res.status(404).json({
+            name: "not found",
+            message: "there is no record with this ID",
+            url: req.originalUrl
+    })
+       else 
+       res.status(401).json({
+        name: err.name,
+        message: err.message,
+        url: req.originalUrl
+    })
+    }
     
 })
 

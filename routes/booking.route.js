@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router();
+const mongoose = require('mongoose')
 
 // Import the model
 const Booking = require('../models/Booking.model')
@@ -166,6 +167,62 @@ router.get('/finddoctor/:id' , async(req, res) => {
             url: req.originalUrl
         })
     }
+})
+
+router.delete('/:id', async ( req, res ) => {
+    try{
+
+        const id = req.params.id;
+        const oID = mongoose.Types.ObjectId(id);
+        
+        console.log("--------------------------")
+        
+        const patient = await User.updateMany ( { booking: oID }  , { $pull : { booking: id } } )
+        
+        if ( patient.nModified == 0 ) throw "patient dont have booking" 
+        // console.log(patient)
+        
+        console.log("--------------------------")
+        const doctor = await User.updateMany ( { booked: oID }  , { $pull : { booked: id } } )
+        if ( doctor.nModified == 0 ) throw "doctor dont have booking" 
+        // console.log(doctor)
+        
+        console.log("--------------------------")
+        const deleted = await Booking.findByIdAndDelete(oID);
+        console.log(deleted)
+        if(!deleted) throw "Not Found"
+        
+        res.status(200).json({
+            message: 'booking has been deleted',
+        })
+    }catch(err){
+
+        if( err = "doctor dont have booking") 
+            res.status(406).json({
+                name: "Invalid booking",
+                message: "doctor dont have this bookin",
+                url: req.originalUrl
+            })
+        else if( err = "patient dont have booking") 
+            res.status(406).json({
+                name: "Invalid booking",
+                message: "patient dont have this bookin",
+                url: req.originalUrl
+            })
+        else if( err = "Not Found") 
+            res.status(404).json({
+                name: "Not Found",
+                message: "there is no booking with this ID",
+                url: req.originalUrl
+        })
+        else
+            res.status(404).json({
+                name: err.name,
+                message: err.message,
+                url: req.originalUrl
+            })
+    }
+    
 })
 
 

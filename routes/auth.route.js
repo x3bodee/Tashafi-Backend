@@ -33,8 +33,8 @@ router.post('/login' , async (req, res) => {
     const {email , password } = req.body
     try {
         let user = await User.findOne({email: email})
-        if(user == null) throw new Error("this email is not in our db")
-        if(!bcrypt.compareSync(password , user.password)) throw new Error("password is wrong !! ")
+        if(user == null) throw new Error("Invalid email or password !!")
+        if(!bcrypt.compareSync(password , user.password)) throw new Error("Invalid email or password !!")
          user.password = undefined
          let token = jwt.sign({user} ,
             process.env.SECRETKEY , {

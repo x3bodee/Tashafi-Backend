@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router();
+const { ObjectId } = require('mongodb');
 
 // Import the model
 const Booking = require('../models/Booking.model')
@@ -86,7 +87,7 @@ router.put('/edit/:id', async (req, res) => {
         await updatedBooking.save()
         res.status(200).json({
             Booking: updatedBooking,
-            message: 'booking has been updated',
+            message: 'booking has been updated'
         })
     }
     catch (err) {
@@ -100,10 +101,10 @@ router.put('/edit/:id', async (req, res) => {
 
 //ALL booking 
 
-router.get('/bookings', async (req, res) => {
+router.get('/allbookings', async (req, res) => {
     try {
-        const allbooking = await Booking.find().populate('patient')
-        res.status(200).json({ allReviews })
+        const allbooking = await Booking.find()
+        res.status(200).json({ allbooking })
     }
     catch (err) {
         res.status(401).json({
@@ -114,6 +115,65 @@ router.get('/bookings', async (req, res) => {
     }
 })
 ///Single Booking
+router.get('/oneBooking/:id', async (req, res) => {
+    try {
+        //booking id
+        const booking_id=ObjectId(req.params.id)
+        //find by booking id
+        const onebooking = await Booking.findById(booking_id)
+        //response
+        res.status(200).json({
+            booking: onebooking,
+            message: 'booking has been found by booking id.',
+        })
+    }
+    catch (err) {
+        //not found response
+        res.status(404).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
+//Show booking by user id
+router.get('/show/:id' , async(req, res) => {
+    try{
+        //user id
+        let user_id=ObjectId(req.params.id)
+        //find user by user id
+        const user = await User.findById(user_id)
+        //if not found user
+        if(!user){
+            throw "Not Existing user"
+        }
+        //doctor
+        const doctor = await await User.find({_id:user_id, userType:1},{password:0}).populate("booked")
+        //patient
+        const patient = await User.findById(user_id).populate("booking")
+        // if user is doctor
+        if (doctor){
+            res.status(200).json({
+                booked: doctor,
+                message: 'doctor has been found',
+            })
+        }else{
+            //if user is patient
+            res.status(200).json({
+                booked: patient,
+                message: 'user is patient',
+            })
+        }
+    }catch(err){
+        //Not found user response
+        res.status(401).json({
+            name: err.name,
+            message: err.message,
+            url: req.originalUrl
+        })
+    }
+})
+
 router.post('/finddoctors/' , async(req, res) => {
     try{
 

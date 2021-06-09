@@ -101,7 +101,6 @@ router.put('/edit/:id', async (req, res) => {
 })
 
 //ALL booking 
-
 router.get('/allbookings', async (req, res) => {
     try {
         const allbooking = await Booking.find()
@@ -115,6 +114,7 @@ router.get('/allbookings', async (req, res) => {
         })
     }
 })
+
 ///Single Booking
 router.get('/oneBooking/:id', async (req, res) => {
     try {
@@ -137,6 +137,7 @@ router.get('/oneBooking/:id', async (req, res) => {
         })
     }
 })
+
 //Show booking by user id
 router.get('/show/:id' , async(req, res) => {
     try{
@@ -149,20 +150,20 @@ router.get('/show/:id' , async(req, res) => {
             throw "Not Existing user"
         }
         //doctor
-        const doctor = await await User.find({_id:user_id, userType:1},{password:0}).populate("booked")
+        const doctor = await User.find({_id:user_id, userType:1},{password:0}).populate("booked")
         //patient
         const patient = await User.findById(user_id).populate("booking")
         // if user is doctor
         if (doctor){
             res.status(200).json({
                 booked: doctor,
-                message: 'doctor has been found',
+                message: 'doctor bookings has been found',
             })
         }else{
             //if user is patient
             res.status(200).json({
                 booked: patient,
-                message: 'user is patient',
+                message: 'patient booking has been found',
             })
         }
     }catch(err){

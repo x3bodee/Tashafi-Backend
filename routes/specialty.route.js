@@ -32,6 +32,7 @@ router.post('/new', async (req, res) => {
 
 // show all Specialties
 router.get('/specialties', async (req, res) => {
+    console.log("in")
     try {
         const allSpecialties = await Specialty.find()
         res.status(200).json({ allSpecialties })

@@ -10,7 +10,7 @@ const cors = require('cors');
 const mongoose = require('mongoose')
 const path = require('path');
 
-mongoose.connect(process.env.MONGODBD,
+mongoose.connect(process.env.MONGODB,
     { useUnifiedTopology: true, useNewUrlParser: true }, () => {
         console.log(`mongo db connect with the server`)
     })

@@ -39,9 +39,10 @@ router.post('/login' , async (req, res) => {
     console.log("password",password)
     try {
         let user = await User.findOne({email: email})
-        if(user == null) throw new Error("Invalid email or password !!")
-        if(!bcrypt.compareSync(password , user.password)) throw new Error("Invalid email or password !!")
+        if(user == null) throw "Invalid email or password !!"
+        if(!bcrypt.compareSync(password , user.password)) throw "Invalid email or password !!!"
          user.password = undefined
+         console.log("passed")
          let token = jwt.sign({user} ,
             process.env.SECRETKEY , {
              expiresIn : 60*60*1000
@@ -49,6 +50,17 @@ router.post('/login' , async (req, res) => {
         res.json({message : "login seccuss " , token})
  
     } catch (err) {
+        if (err == "Invalid email or password !!")
+        res.status(404).json({name : err.name ,
+            message:"there is no such user",
+           url : req.originalUrl
+           })
+        else if (err == "Invalid email or password !!!")
+        res.status(406).json({name : err.name ,
+            message:"ether email or password is wrong",
+           url : req.originalUrl
+           })
+        else
         res.status(401).json({name : err.name ,
          message:err.message,
         url : req.originalUrl

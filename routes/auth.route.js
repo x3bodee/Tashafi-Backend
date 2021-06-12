@@ -3,14 +3,17 @@ const router = express.Router();
 const User = require('../models/User.model')
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
-require('dotenv').config();
 const { ObjectId } = require('mongodb');
+require('dotenv').config();
+
 
 
 
 // register Route 
-router.post('/', async (req, res) => {
+router.post('/signup', async (req, res) => {
     try {
+       console.log(req.body)
+       req.body.userType=parseInt(req.body.userType);
         const newUser = new User(req.body);
         await newUser.save();
         res.json({
@@ -31,6 +34,9 @@ router.post('/', async (req, res) => {
 // login
 router.post('/login' , async (req, res) => {
     const {email , password } = req.body
+    console.log("email",email)
+
+    console.log("password",password)
     try {
         let user = await User.findOne({email: email})
         if(user == null) throw new Error("Invalid email or password !!")

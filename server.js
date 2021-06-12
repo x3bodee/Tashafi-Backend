@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express')
 const app = express()
 require('dotenv').config();
@@ -9,8 +8,8 @@ const PORT = process.env.PORT || 5000
 const cors = require('cors');
 const mongoose = require('mongoose')
 const path = require('path');
-
-mongoose.connect(process.env.MONGODBD,
+console.log(process.env.MONGODB)
+mongoose.connect(process.env.MONGODB,
     { useUnifiedTopology: true, useNewUrlParser: true }, () => {
         console.log(`mongo db connect with the server`)
     })

@@ -45,8 +45,10 @@ router.post('/login' , async (req, res) => {
          let token = jwt.sign({user} ,
             process.env.SECRETKEY , {
              expiresIn : 60*60*1000
-         })
-        res.json({message : "login seccuss " , token})
+             
+         }) 
+         console.log(user._id)
+        res.json({message : "login seccuss " , token , "userID":user._id})
  
     } catch (err) {
         if (err == "Invalid email or password !!")

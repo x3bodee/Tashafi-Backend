@@ -10,11 +10,14 @@ const User = require('../models/User.model');
 
 router.post('/new', async (req, res) => {
     try {
+        console.log("inside review add new")
+        console.log(req.body)
         const newReview = new Review(req.body)
         const doctorID = await User.findOne(req.doctor)
         const patientID = await User.findOne(req.patient)
-
+        
         await newReview.save()
+        console.log("Done")
         res.status(201).json({
             Review: newReview,
             message: 'new review has been added',

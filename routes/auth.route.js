@@ -78,25 +78,31 @@ router.post('/logout' , async (req, res) => {
 //update
 router.put('/update/:id' , async function(req, res){
     var conditions = {
-        _id : ObjectId(req.params.id),
-        Fname:req.body.Fname,
-        Lname:req.body.Lname,
-        email:req.body.email,
-        password:req.body.password,
-        gender:req.body.gender,
-        location:req.body.location,
-        city:req.body.city
+
     };
+
+    if(req.body.Fname) conditions.Fname = req.body.Fname;
+    if(req.body.Lname) conditions.Lname = req.body.Lname;
+    if(req.body.email) conditions.email = req.body.email;
+    if(req.body.gender) conditions.gender = req.body.gender;
+    if(req.body.location) conditions.location = req.body.location;
+    if(req.body.city) conditions.city = req.body.city;
+    console.log(conditions);
     try{
-        let user = await User.findOne({_id: conditions._id});
-        user.Fname=conditions.Fname;
-        user.Lname=conditions.Lname;
-        user.email=conditions.email;
-        user.password=conditions.password;
-        user.gender=conditions.gender;
-        user.location=conditions.location;
-        user.city=conditions.city;
-        await user.save();
+        console.log("in here")
+        console.log(req.params.id)
+        let update=req.body;
+
+        let user = await User.findByIdAndUpdate({_id: req.params.id},conditions,{new:true});
+
+        // user.Fname=conditions.Fname;
+        // user.Lname=conditions.Lname;
+        // user.email=conditions.email;
+        // user.password=conditions.password;
+        // user.gender=conditions.gender;
+        // user.location=conditions.location;
+        // user.city=conditions.city;
+        // await user.save();
         res.json({
             message: "thank you for update"
             , user: user

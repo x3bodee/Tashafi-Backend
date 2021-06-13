@@ -139,6 +139,21 @@ router.get('/oneBooking/:id', async (req, res) => {
     }
 })
 
+function convertDate(start, end) {
+    let s = new Date(start)
+    let e = new Date(end)
+    let sn = s.toDateString().split(" "); // thu sun mon  2021 5 12
+    let en = e.toDateString().split(" ");
+
+
+    let sd = s.toTimeString().split(" ")[0]
+    let ed = e.toTimeString().split(" ")[0]
+
+    let date = { date: sn[1] + " " + sn[2] + " " + sn[3], day: en[0], start_time: sd, end_time: ed }
+    console.log(date)
+    return date;
+}
+
 //Show booking by user id
 router.get('/show/:id', async (req, res) => {
     try {
@@ -151,20 +166,107 @@ router.get('/show/:id', async (req, res) => {
             throw "Not Existing user"
         }
         //doctor
-        const doctor = await User.find({ _id: user_id, userType: 1 }, { password: 0 }).populate("booked")
+        const doctor = await User.find({ _id: user_id, userType: 1 }, { password: 0 })
+            .populate(
+                {
+                    path: "booked specialty",
+                    populate: {
+                        path: 'meeting_id patient',
+                        select: '-password',
+                    }
+                })
         //patient
-        const patient = await User.findById(user_id).populate("booking")
+        const patient = await User.findById(user_id)
+            .populate(
+                {
+                    path: "booking",
+                    select: '-password',
+                    populate: {
+                        path: 'meeting_id',
+                        populate: {
+                            path: 'doctor',
+                            select: '-password',
+                            populate: {
+                                path: 'specialty',
+                                select: 'name',
+                            }
+                        }
+
+                    }
+                })
         // if user is doctor
-        if (doctor) {
+        if (doctor && doctor.length) {
+            console.log("1")
+            // console.log(doctor[0].Fname)
+            let doc = {
+                Fullname: doctor[0].Fname + " " + doctor[0].Lname,// 
+                email: doctor[0].email,
+                id: doctor[0]._id, //  
+                specialty: doctor[0].specialty.name, //  doctor.booked.specialty.name
+            }
+            // console.log(doc)
+            console.log("2")
+            let booked = [];
+
+            doctor[0].booked.forEach((ele, i) => {
+                let done = {
+                    status: ele.status,
+                    patient: {
+                        Fullname: ele.patient.Fname + " " + ele.patient.Lname,
+                        email: ele.patient.email,
+                        id: ele.patient._id, //  
+                    },
+                    meeting: {
+                        date: convertDate(ele.meeting_id.start_time, ele.meeting_id.end_time),
+                        id: ele.meeting_id._id,
+                        link: ele.meeting_id.meeting_id,
+                    }
+                }
+                booked.push(done)
+            })
+            console.log(booked)
             res.status(200).json({
-                booked: doctor,
                 message: 'doctor bookings has been found',
+                doctor: doc,
+                booked: booked,
+
             })
         } else {
+            console.log("1")
+            // console.log(doctor[0].Fname)
+            let pat = {
+                Fullname: patient.Fname + " " + patient.Lname,// 
+                email: patient.email,
+                id: patient._id, //  
+            }
+            console.log(pat)
+            console.log("2")
+            let booking = [];
+
+            patient.booking.forEach((ele, i) => {
+                let done = {
+                    status: ele.status,
+                    doctor: {
+                        Fullname: ele.meeting_id.doctor.Fname + " " + ele.meeting_id.doctor.Lname,
+                        email: ele.meeting_id.doctor.email,
+                        id: ele.meeting_id.doctor._id, //  
+                        specialty: ele.meeting_id.doctor.specialty.name
+                    },
+                    meeting: {
+                        date: convertDate(ele.meeting_id.start_time, ele.meeting_id.end_time),
+                        id: ele.meeting_id._id,
+                        link: ele.meeting_id.meeting_id,
+                    }
+                }
+                booking.push(done)
+                console.log(done)
+            })
+
             //if user is patient
             res.status(200).json({
-                booked: patient,
                 message: 'patient booking has been found',
+                patient: pat,
+                booking: booking,
             })
         }
     } catch (err) {
@@ -351,8 +453,8 @@ function calulateRatiing(reviews) {
 }
 
 function prepare_sessions(sessions) {
-    let session = [... sessions]
-    let arr =[];
+    let session = [...sessions]
+    let arr = [];
     console.log("---------------------------")
     session.forEach((ele) => {
         let start = new Date(ele.start_time)
@@ -361,11 +463,11 @@ function prepare_sessions(sessions) {
         let en = start.toDateString().split(" ");
         // console.log(sn)
         // console.log(en)
-        
-        let s=start.toTimeString().split(" ")[0]
-        let e=end.toTimeString().split(" ")[0]
-        
-        let date = { date: sn[1]+" "+sn[2]+" "+sn[3], day: en[0], start:s , end: e, session_id: ele._id, meeting_id: ele.meeting_id }
+
+        let s = start.toTimeString().split(" ")[0]
+        let e = end.toTimeString().split(" ")[0]
+
+        let date = { date: sn[1] + " " + sn[2] + " " + sn[3], day: en[0], start: s, end: e, session_id: ele._id, meeting_id: ele.meeting_id }
         // console.log(date)
         arr.push(date)
         return date;
@@ -406,13 +508,13 @@ router.get('/doctorprofile/:id', async (req, res) => {
         if (!sessions || !sessions.length) throw "DontExist"
         console.log("sessions done")
 
-        
-        
-        sessions.sort((a, b)=> {
+
+
+        sessions.sort((a, b) => {
             var dateA = new Date(a.start_time), dateB = new Date(b.start_time);
             return dateA - dateB;
         });
-        
+
 
         const doctorRate = calulateRatiing(review);
         const sessions_date = prepare_sessions(sessions);

@@ -94,15 +94,7 @@ router.put('/update/:id' , async function(req, res){
         let update=req.body;
 
         let user = await User.findByIdAndUpdate({_id: req.params.id},conditions,{new:true});
-
-        // user.Fname=conditions.Fname;
-        // user.Lname=conditions.Lname;
-        // user.email=conditions.email;
-        // user.password=conditions.password;
-        // user.gender=conditions.gender;
-        // user.location=conditions.location;
-        // user.city=conditions.city;
-        // await user.save();
+        
         res.json({
             message: "thank you for update"
             , user: user

@@ -42,7 +42,6 @@ router.post('/login' , async (req, res) => {
         if(user == null) throw "Invalid email or password !!"
         if(!bcrypt.compareSync(password , user.password)) throw "Invalid email or password !!!"
          user.password = undefined
-         console.log("passed")
          let token = jwt.sign({user} ,
             process.env.SECRETKEY , {
              expiresIn : 60*60*1000

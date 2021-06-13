@@ -236,7 +236,7 @@ router.get('/finddoctor/:id' , async(req, res) => {
 
         let id=req.params.id
 
-        const doctor = await User.findById(id).select({"password": 0})
+        const doctor = await User.findById(id).select({"password": 0}).populate("specialty")
         
         // if the docctor == null or undefind then throw erorr
         if (!doctor) throw "DontExist"

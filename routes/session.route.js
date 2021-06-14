@@ -77,6 +77,30 @@ router.post('/edit/:id' , async(req, res) => {
     }
 })
 
+function prepare_sessions(sessions) {
+    let session = [...sessions]
+    let arr = [];
+    console.log("---------------------------")
+    session.forEach((ele) => {
+        let start = new Date(ele.start_time)
+        let end = new Date(ele.end_time)
+        let sn = start.toDateString().split(" ");
+        let en = start.toDateString().split(" ");
+        // console.log(sn)
+        // console.log(en)
+
+        let s = start.toTimeString().split(" ")[0]
+        let e = end.toTimeString().split(" ")[0]
+
+        let date = { date: sn[1] + " " + sn[2] + " " + sn[3], day: en[0], start: s, end: e, session_id: ele._id, meeting_id: ele.meeting_id }
+        // console.log(date)
+        arr.push(date)
+        return date;
+    })
+    console.log(arr)
+    return arr;
+}
+
 router.get('/show/:id' , async(req, res) => {
     try{
 
@@ -95,10 +119,14 @@ router.get('/show/:id' , async(req, res) => {
         if (!sessions || !sessions.length) throw "DontExist"
         
         console.log(sessions)
-
+        sessions.sort((a, b) => {
+            var dateA = new Date(a.start_time), dateB = new Date(b.start_time);
+            return dateA - dateB;
+        });
+        let session = prepare_sessions(sessions);
         res.status(200).json({
             message: 'sessions has been found',
-            sessions:sessions,
+            sessions:session,
         })
     }catch(err){
         if (err == "DontExist") 

@@ -207,7 +207,12 @@ router.get('/show/:id', async (req, res) => {
             // console.log(doc)
             console.log("2")
             let booked = [];
-
+            
+            doctor[0].booked.sort((a, b) => {
+                var dateA = new Date(a.meeting_id.start_time), dateB = new Date(b.meeting_id.start_time);
+                return dateA - dateB;
+            });
+            
             doctor[0].booked.forEach((ele, i) => {
                 let done = {
                     status: ele.status,
@@ -242,6 +247,11 @@ router.get('/show/:id', async (req, res) => {
             console.log(pat)
             console.log("2")
             let booking = [];
+            
+            patient.booking.sort((a, b) => {
+                var dateA = new Date(a.meeting_id.start_time), dateB = new Date(b.meeting_id.start_time);
+                return dateA - dateB;
+            });
 
             patient.booking.forEach((ele, i) => {
                 let done = {

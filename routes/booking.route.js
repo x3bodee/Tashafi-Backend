@@ -12,58 +12,86 @@ const Review = require('../models/Review.model')
 // adding new booking
 router.post('/new', async (req, res) => {
     try {
+        // assign all the post values to validate them
         const sID = req.body.meeting_id
         const sDescritption = req.body.description
         const sPatient = req.body.patient
-        console.log(sID)
-        console.log(sDescritption)
-        console.log(sPatient)
+        
+        // console.log(sID)
+        // console.log(sDescritption)
+        // console.log(sPatient)
+
+        // valedate if one of the data is missing then throw error
         if (!sID || !sDescritption || !sPatient) throw "missing data"
 
+        // create new booking
         const book = new Booking({ description: sDescritption, patient: sPatient, meeting_id: sID })
+        // save the booking in the database
         const booking = await book.save()
+
+        // here validate the save if somthening went wrong then throw error
         if (!booking) throw "booking not saved"
 
+        // after that update the session make the status true
         const sessionID = await Session.findByIdAndUpdate({ _id: sID }, { status: true }).populate({
             path: 'doctor', select: '-password'
         })
-        console.log(sessionID)
+
+
+        // console.log(sessionID)
+        
+        // here validate the session if somthening went wrong then throw error
         if (!sessionID) throw "not found"
+        
         //  sessionID.status=true
         //  await sessionID.save()
-        console.log("Hi")
+        // console.log("Hi")
 
+        // here updte the doctor booked variable and push this booking id in it
         const doctor = await User.findByIdAndUpdate(sessionID.doctor._id, { $push: { booked: booking } })
-
+        //check if the doctor updated is done if not throw error
         if (!doctor) throw "not found"
+
+        // here updte the patient booking variable and push this booking id in it
         const patientID = await User.findByIdAndUpdate({ _id: sPatient }, { $push: { booking: booking } })
-        console.log("line 29")
+        //check if the patient updated is done if not throw error
         if (!patientID) throw "not found"
+        
         //    console.log(patientID)
+        // console.log("line 29")
+
+        // if no problem happened then send json response
         res.json({
-            booking: booking,
             message: 'new booking successfully created',
+            booking: booking,
         })
     }
+
     catch (err) {
+        // catch missing data erorr 
         if (err == "missing data")
             res.status(406).json({
                 name: "missing data",
                 message: "there is missing data ",
                 url: req.originalUrl
             })
+        
+        // catch booking not saved successfully erorr
         else if (err == "booking not saved")
             res.status(400).json({
                 name: "not saved",
                 message: "Something went wrong while saving",
                 url: req.originalUrl
             })
+        
+        // catch not found erorr
         else if (err == "not found")
             res.status(404).json({
                 name: "not found",
                 message: "there is no record with this ID",
                 url: req.originalUrl
             })
+        // catch other erorrs that might happen
         else
             res.status(401).json({
                 name: err.name,
@@ -79,20 +107,25 @@ router.post('/new', async (req, res) => {
 
 router.put('/edit/:id', async (req, res) => {
     try {
-
+        // save booking id
         const bookingID = req.params.id
+        // find booking by id and update it with the new data
         const updatedBooking = await Booking.findByIdAndUpdate(bookingID, req.body)
-        if (!updatedBooking) {
-            throw new Error("booking does not exist")
 
-        }
+        // if not found or not updated then send error
+        if (!updatedBooking) throw new Error("booking does not exist")
+
+        // save updated booking
         await updatedBooking.save()
+        
+        // send response with json data
         res.status(200).json({
-            Booking: updatedBooking,
-            message: 'booking has been updated'
+            message: 'booking has been updated',
+            Booking: updatedBooking
         })
     }
     catch (err) {
+        // catchall errors and send them to the user
         res.status(400).json({
             name: err.name,
             message: err.message,
@@ -101,13 +134,17 @@ router.put('/edit/:id', async (req, res) => {
     }
 })
 
+
 //ALL booking 
 router.get('/allbookings', async (req, res) => {
     try {
+        // get all bookings
         const allbooking = await Booking.find()
+        // send all bookings
         res.status(200).json({ allbooking })
     }
     catch (err) {
+        // catch errors and send them
         res.status(401).json({
             name: err.name,
             message: err.message,
@@ -118,6 +155,7 @@ router.get('/allbookings', async (req, res) => {
 
 ///Single Booking
 router.get('/oneBooking/:id', async (req, res) => {
+    
     try {
         //booking id
         const booking_id = ObjectId(req.params.id)
@@ -125,8 +163,8 @@ router.get('/oneBooking/:id', async (req, res) => {
         const onebooking = await Booking.findById(booking_id)
         //response
         res.status(200).json({
-            booking: onebooking,
             message: 'booking has been found by booking id.',
+            booking: onebooking,
         })
     }
     catch (err) {
@@ -139,7 +177,9 @@ router.get('/oneBooking/:id', async (req, res) => {
     }
 })
 
+// this is just a helper method to convert date to our date object
 function convertDate(start, end) {
+
     let s = new Date(start)
     let e = new Date(end)
     let sn = s.toDateString().split(" "); // thu sun mon  2021 5 12
@@ -162,10 +202,12 @@ router.get('/show/:id', async (req, res) => {
         //find user by user id
         const user = await User.findById(user_id)
         //if not found user
-        if (!user) {
-            throw "Not Existing user"
-        }
+        if (!user)  throw "Not Existing user"
+        
+
         //doctor
+        // find doctor by id and populate the booked array and specialty
+        // and from the booked array populate the booking and get the patient name and meeting_id
         const doctor = await User.find({ _id: user_id, userType: 1 }, { password: 0 })
             .populate(
                 {
@@ -175,7 +217,11 @@ router.get('/show/:id', async (req, res) => {
                         select: '-password',
                     }
                 })
+
         //patient
+        // find patient by id and populate the booking array
+        // and from the booking array populate the sessions and from the session
+        // populate the doctor and his specialty
         const patient = await User.findById(user_id)
             .populate(
                 {
@@ -191,10 +237,12 @@ router.get('/show/:id', async (req, res) => {
                                 select: 'name',
                             }
                         }
-
                     }
                 })
-        // if user is doctor
+
+
+        // if user is doctor then the logic is deffrent from patient
+        // inside if just prepareations for the response with all the data organized
         if (doctor && doctor.length) {
             console.log("1")
             // console.log(doctor[0].Fname)
@@ -236,7 +284,10 @@ router.get('/show/:id', async (req, res) => {
                 booked: booked,
 
             })
-        } else {
+        } 
+        // inside the if we will prepare the user data if he/she is a patient
+        // and organized the data before sending the response back
+        else {
             console.log("1")
             // console.log(doctor[0].Fname)
             let pat = {
@@ -289,9 +340,9 @@ router.get('/show/:id', async (req, res) => {
     }
 })
 
+// find doctor by his city and specialty
 router.post('/finddoctors/', async (req, res) => {
     try {
-
         let city = req.body.city
         let specialty = req.body.specialty
 
@@ -344,6 +395,7 @@ router.post('/finddoctors/', async (req, res) => {
     }
 })
 
+// find doctor by his id
 router.get('/finddoctor/:id', async (req, res) => {
     try {
 
@@ -385,29 +437,35 @@ router.get('/finddoctor/:id', async (req, res) => {
     }
 })
 
+// delete booking by id
 router.delete('/:id', async (req, res) => {
     try {
 
+        // save id
         const id = req.params.id;
+        // then convert it to objectId
         const oID = mongoose.Types.ObjectId(id);
 
         console.log("--------------------------")
-
+        // delete the booking from patient array
         const patient = await User.updateMany({ booking: oID }, { $pull: { booking: id } })
 
         if (patient.nModified == 0) throw "patient dont have booking"
         // console.log(patient)
 
         console.log("--------------------------")
+        // delete the booking from doctor array
         const doctor = await User.updateMany({ booked: oID }, { $pull: { booked: id } })
         if (doctor.nModified == 0) throw "doctor dont have booking"
         // console.log(doctor)
 
         console.log("--------------------------")
+        // after all thet deleted the booking
         const deleted = await Booking.findByIdAndDelete(oID);
         console.log(deleted)
         if (!deleted) throw "Not Found"
 
+        // and update the session back to be false
         const session = await Session.findByIdAndUpdate({ _id: deleted.meeting_id }, { status: false })
         console.log(session)
 
@@ -446,7 +504,7 @@ router.delete('/:id', async (req, res) => {
 
 })
 
-
+// helping method to calculate the rating
 function calulateRatiing(reviews) {
     const len = reviews.length;
     let sum = 0;
@@ -462,6 +520,7 @@ function calulateRatiing(reviews) {
     return rate;
 }
 
+// helper method to prepare session before sending it to the user
 function prepare_sessions(sessions) {
     let session = [...sessions]
     let arr = [];
@@ -486,6 +545,7 @@ function prepare_sessions(sessions) {
     return arr;
 }
 
+// this router for getting all data in doctor profile
 router.get('/doctorprofile/:id', async (req, res) => {
     try {
         let id = req.params.id
